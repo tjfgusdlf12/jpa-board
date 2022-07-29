@@ -2,6 +2,8 @@ package jpaTestBoard.jpaboard.Config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -12,7 +14,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
 @EnableSwagger2
-public class SwaggerConfiguration {
+public class SwaggerConfiguration extends WebMvcConfigurationSupport {
 
     /**Docket => Swagger 설정의 핵심으로 문서 객체임 API에 대한 내용 및 스펙은 컨트롤러에서 적용**/
     @Bean
@@ -39,5 +41,12 @@ public class SwaggerConfiguration {
 
     /**여기까지 했음 Application을 실행해  https://locahost:8080/swagger-ui.html에 접속해보자.
      * 그러면 로그인 창이 뜨고 Spring Security의 기본설정이 되어있을거임
-     * porn.xml에 springSecurity 부분을 주석 처리하고 실행해보자*/
+     * gradle에 springSecurity 부분을 주석 처리하고 실행해보자*/
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
+        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+        super.addResourceHandlers(registry);
+    }
 }

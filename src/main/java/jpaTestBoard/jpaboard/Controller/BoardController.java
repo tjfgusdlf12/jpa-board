@@ -8,12 +8,14 @@ import jpaTestBoard.jpaboard.Service.Board.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpServletRequest;
+import org.springframework.data.domain.Pageable;
 
 @RequiredArgsConstructor
 @Controller
@@ -24,10 +26,10 @@ public class BoardController {
 
     @ApiOperation(value = "게시글 호출", tags = "Board")
     @PostMapping("/board/list")
-    public Object boardList(HttpServletRequest req, @RequestBody ReqBoard reqBoard) {
+    public Object boardList(HttpServletRequest req, @RequestBody ReqBoard reqBoard, @PageableDefault(sort = {"idx"}) Pageable pageable) {
         logger.info("[boardList] CONTROLLER -> boardList API Call");
 
-        return  boardService.getBoardList(reqBoard).getResponse();
+        return  boardService.getBoardList(reqBoard,pageable).getResponse();
     }
 
     @ApiOperation(value = "게시글 상세 호출", tags = "Board")

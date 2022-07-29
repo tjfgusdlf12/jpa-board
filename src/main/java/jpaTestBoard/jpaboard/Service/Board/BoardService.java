@@ -1,27 +1,25 @@
 package jpaTestBoard.jpaboard.Service.Board;
 
 import com.querydsl.core.QueryResults;
-import jpaTestBoard.jpaboard.Common.Utils.DateUtil;
 import jpaTestBoard.jpaboard.Common.Utils.RestResult;
 import jpaTestBoard.jpaboard.Dto.Board.BoardInfo;
 import jpaTestBoard.jpaboard.Dto.Board.ReqBoard;
-import jpaTestBoard.jpaboard.Dto.Common.UserInfo;
 import jpaTestBoard.jpaboard.Entity.Board.Board;
 import jpaTestBoard.jpaboard.Repository.Board.BoardRepo;
 import jpaTestBoard.jpaboard.Repository.Board.BoardRepository;
 import jpaTestBoard.jpaboard.Service.MemberService;
+import jpaTestBoard.jpaboard.model.Pagination;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.AsyncContext;
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -32,13 +30,34 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final BoardRepo boardRepo;
 
-    public RestResult getBoardList(ReqBoard reqBoard) {
+    public RestResult getBoardList(ReqBoard reqBoard, Pageable pageable) {
         RestResult result = RestResult.getDefResult();
-
+        List<BoardInfo> resultList = new ArrayList<>();
         try {
-            QueryResults<Board> boardList = boardRepository.getBoardList(reqBoard);
+            QueryResults<Board> boardList = boardRepository.getBoardList(reqBoard,pageable);
+
+            for(Board el : boardList.getResults()){
+
+                BoardInfo info = BoardInfo.builder()
+                        .idx(el.getIdx())
+                        .title(el.getTitle())
+                        .content(el.getContent())
+                        .author(el.getAuthor())
+                        .viewCnt(el.getViewCnt())
+                        .regDt(String.valueOf(el.getRegDt()))
+                        .build();
+                resultList.add(info);
+            }
+
+            Pagination pagination = new Pagination(
+                    (int) boardList.getTotal()
+                    ,pageable.getPageNumber() + 1
+                    ,pageable.getPageSize()
+                    ,10
+            );
 
             result.addObject("data",boardList.getResults());
+            result.addObject("pagination", pagination);
             result.addObject("total",boardList.getTotal());
 
         } catch (Exception e) {
@@ -69,7 +88,7 @@ public class BoardService {
 
         try {
             Timestamp now = new Timestamp(new Date().getTime());
-            Optional<Board> findDetail = boardRepo.findById(boardInfo.getIdx());
+            Optional<Board> findDetail = boardRepo.findByIdx(boardInfo.getIdx());
             Board board = Board.builder()
                     .title(boardInfo.getTitle())
                     .content(boardInfo.getContent())

@@ -8,7 +8,7 @@ import jpaTestBoard.jpaboard.Dto.ReqMember;
 import jpaTestBoard.jpaboard.Entity.Member;
 import jpaTestBoard.jpaboard.Entity.Team;
 import jpaTestBoard.jpaboard.Repository.TeamRepo.TeamRespository;
-import jpaTestBoard.jpaboard.Repository.UserRepo.UserRepository;
+import jpaTestBoard.jpaboard.Repository.UserRepo.MemberRepository;
 import jpaTestBoard.jpaboard.Service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
 @Transactional
 public class MemberServiceImpl implements MemberService {
     private static final Logger logger = LoggerFactory.getLogger(MemberService.class);
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
     private final TeamRespository teamRespository;
     private final BCryptPasswordEncoder encoder;
 
@@ -46,7 +46,7 @@ public class MemberServiceImpl implements MemberService {
             member.setUserPhone(userInfo.getUserPhone());
             member.setJoinRegDt(now);
 
-            userRepository.save(member);
+            memberRepository.save(member);
 
         } catch (Exception e) {
             logger.error("",e);
@@ -60,7 +60,7 @@ public class MemberServiceImpl implements MemberService {
     public RestResult findMySymReviewIdxList(CommonIdx commonIdx) {
         RestResult result = RestResult.getDefResult();
         try{
-            Member memberList = userRepository.findById(commonIdx.getId()).orElseThrow(()->new BadResulException("맴버가 존재하지 않습니다."));
+            Member memberList = memberRepository.findById(commonIdx.getId()).orElseThrow(()->new BadResulException("맴버가 존재하지 않습니다."));
             String teamName = memberList.getTeam().getName();
 
             result.addObject("data",memberList);
@@ -82,7 +82,7 @@ public class MemberServiceImpl implements MemberService {
             } else {
                  member = Member.insertMember(reqMember,team);
             }
-            userRepository.save(member);
+            memberRepository.save(member);
         } catch (Exception e){
             logger.error("",e);
             result.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);

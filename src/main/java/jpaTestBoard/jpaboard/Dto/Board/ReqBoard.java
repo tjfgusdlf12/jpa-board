@@ -1,14 +1,15 @@
 package jpaTestBoard.jpaboard.Dto.Board;
 
+import jpaTestBoard.jpaboard.model.Pagination;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class ReqBoard {
+public class ReqBoard extends Pagination {
 
-    private String keyWords;
+    private String srchKeyword;
 
-    private Integer option;
+    private Integer srchType;
 
 }
